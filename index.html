@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>DE&I</title>
-  <link rel="icon" type="image/png" href="./department.png?v=5">
+  <title>ELO Project Portal</title>
+  <link rel="icon" type="image/png" href="department.png">
   <style>
     body, html {
       margin: 0;
@@ -647,7 +647,7 @@
     <div class="nav-spacer"></div>
 
     <a class="swgas-logo-link"
-       href="https://swgas.sharepoint.com/sites/HR"
+       href="https://swgas.sharepoint.com/sites/TalentDevelopment/SitePages/Enterprise-Learning-Office.aspx"
        target="_blank"
        rel="noopener noreferrer"
        title="Southwest Gas SharePoint">
@@ -753,28 +753,28 @@
        ========================================================== */
 
     const PORTAL_CONFIG = {
-      portalTitle: "DE&I Project Portal",
+      portalTitle: "ELO Project Portal",
 
-      departmentName: "DE&I",
+      departmentName: "ELO",
 
       defaultViewId: "home",
 
       views: {
         home: {
           label: "Home",
-          embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=c5391d7667514bd9a4b78a04e9ed637a",
+          embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=c3528d6905d6456fbe9afe9bd61b1d62",
           viewOnlyNote: false
         },
 
         mainInitiatives: {
-          label: "DE&I Main Initiatives",
-          embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=3afa72eb25444f0097fe00081a918a3e",
+          label: "ELO Main Initiatives",
+          embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=524de7bc7cd24102bd4fb612fee7d43b",
           viewOnlyNote: false
         },
 
         allDepartmentProjects: {
-          label: "All DE&I Projects (View Only)",
-          embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=bbebdce23f244f19b0651962b37bfba4",
+          label: "All ELO Projects (View Only)",
+          embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=9c8b18d079c74c5684fc5a566d863bd9",
           viewOnlyNote: true
         },
 
@@ -789,12 +789,12 @@
         {
           id: "bau",
           label: "BAU",
-          embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=ab57594639f5477b8cf810217530e5e9"
+          embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=2e17ca053d784f4db544a995f2fafd09"
         },
         {
-          id: "main hr initiative",
-          label: "Main HR Initiative #1 (Placeholder)",
-          embedSrc: "INSERT_DEPARTMENT_INITIATIVE_LINK_HERE"
+          id: "elo transition plan",
+          label: "ELO Transition Plan",
+          embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=46376cb1ff6e47bf9b7ed1e62019ecd7"
         }
       ]
     };
@@ -1016,6 +1016,12 @@
     function hidePlaceholderMessage() {
       placeholderMessage.classList.add("hidden");
     }
+
+    placeholderMessage.addEventListener("click", function(event) {
+      if (event.target === placeholderMessage) {
+        hidePlaceholderMessage();
+      }
+    });
 
     function setViewOnlyNote(shouldShow) {
       if (shouldShow) {
