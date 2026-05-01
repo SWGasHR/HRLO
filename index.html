@@ -150,6 +150,76 @@
 
     .nav-spacer {
       flex: 1;
+      min-width: 230px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* --- NAV MESSAGE POP-UP --- */
+    .dashboard-refresh-popup {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: min(470px, 100%);
+      min-height: 34px;
+      box-sizing: border-box;
+      padding: 8px 34px 8px 18px;
+      background: linear-gradient(135deg, #f7f9ff 0%, #eef3ff 100%);
+      color: #252763;
+      border: 1px solid rgba(194, 205, 255, 0.95);
+      border-radius: 999px;
+      box-shadow: 0 5px 16px rgba(0,0,0,0.18);
+      text-align: center;
+      font-size: 12.5px;
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: 0.01em;
+    }
+
+    .dashboard-refresh-popup.hidden {
+      display: none;
+    }
+
+    .refresh-popup-text {
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+
+    .refresh-popup-close {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #252763;
+      background: #5b75d6;
+      color: white;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-family: inherit;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.22);
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .refresh-popup-close:hover {
+      background: #7891ec;
+      transform: translateY(-1px);
+    }
+
+    .refresh-popup-close:focus-visible {
+      outline: 2px solid white;
+      outline-offset: 2px;
     }
 
     .swgas-logo-link {
@@ -327,11 +397,37 @@
       min-height: 0;
     }
 
-    iframe {
+    .iframe-pool {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: white;
+    }
+
+    .content-frame {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       border: none;
       display: block;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 0;
+      background: white;
+      transition: opacity 0.34s ease;
+    }
+
+    .content-frame.active {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 2;
+    }
+
+    .content-frame.fading-out {
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1;
     }
 
     /* --- SMARTER LOADING MESSAGE --- */
@@ -531,6 +627,19 @@
     .save-modal-button.yes:hover {
       background: #1d1f50;
     }
+
+    @media (max-width: 980px) {
+      .dashboard-refresh-popup {
+        min-height: 30px;
+        padding: 7px 30px 7px 14px;
+        font-size: 11.5px;
+      }
+
+      .nav-spacer {
+        min-width: 190px;
+        padding: 0 8px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -595,8 +704,8 @@
         <div class="dropdown-header">HRLT</div>
         <a href="https://swgashr.github.io/HR">Albert Taylor</a>
         <a href="https://swgashr.github.io/HR-Operations">Gail Carmona</a>
-        <a href="https://swgashr.github.io/HR-Compensation-Benefits">Mike Bryant</a>
-        <a href="https://swgashr.github.io/HR-Employee-Experience-TA">Courtney Moore</a>
+        <a href="https://swgashr.github.io/HR-Compensation-Benefits-HRS">Mike Bryant</a>
+        <a href="https://swgashr.github.io/HR-EX-DEI-TA">Courtney Moore</a>
 
         <div class="dropdown-divider"></div>
 
@@ -644,7 +753,12 @@
       </div>
     </div>
 
-    <div class="nav-spacer"></div>
+    <div class="nav-spacer">
+      <div class="dashboard-refresh-popup hidden" id="refreshPopup" role="status" aria-live="polite">
+        <span class="refresh-popup-text">This Dashboard updates every 24 hours.</span>
+        <button class="refresh-popup-close" id="refreshPopupClose" type="button" aria-label="Dismiss dashboard update reminder">×</button>
+      </div>
+    </div>
 
     <a class="swgas-logo-link"
        href="https://swgas.sharepoint.com/sites/TalentDevelopment/SitePages/Enterprise-Learning-Office.aspx"
@@ -680,10 +794,7 @@
   </div>
 
   <div class="iframe-wrap">
-    <iframe id="contentFrame"
-            src=""
-            allowfullscreen>
-    </iframe>
+    <div class="iframe-pool" id="iframePool"></div>
 
     <div class="loading-message hidden" id="loadingMessage">
       <div class="loading-content">
@@ -763,25 +874,29 @@
         home: {
           label: "Home",
           embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=c3528d6905d6456fbe9afe9bd61b1d62",
-          viewOnlyNote: false
+          viewOnlyNote: false,
+          refreshReminder: true
         },
 
         mainInitiatives: {
           label: "ELO Main Initiatives",
           embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=524de7bc7cd24102bd4fb612fee7d43b",
-          viewOnlyNote: false
+          viewOnlyNote: false,
+          refreshReminder: true
         },
 
         allDepartmentProjects: {
           label: "All ELO Projects (View Only)",
           embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=9c8b18d079c74c5684fc5a566d863bd9",
-          viewOnlyNote: true
+          viewOnlyNote: true,
+          refreshReminder: false
         },
 
         allHrPersonalTasks: {
           label: "All HR Personal Tasks (View Only)",
           embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=411b8b11b68440d29c2d27c40b0397ed",
-          viewOnlyNote: true
+          viewOnlyNote: true,
+          refreshReminder: false
         }
       },
 
@@ -804,7 +919,7 @@
        You should not need to edit below this line.
        ========================================================== */
 
-    const contentFrame = document.getElementById("contentFrame");
+    const iframePool = document.getElementById("iframePool");
     const warningBar = document.getElementById("warningBar");
     const warningToggle = document.getElementById("warningToggle");
     const saveModal = document.getElementById("saveModal");
@@ -813,6 +928,9 @@
     const loadingMessage = document.getElementById("loadingMessage");
     const placeholderMessage = document.getElementById("placeholderMessage");
     const viewOnlyNote = document.getElementById("viewOnlyNote");
+    const refreshPopup = document.getElementById("refreshPopup");
+    const refreshPopupText = refreshPopup ? refreshPopup.querySelector(".refresh-popup-text") : null;
+    const refreshPopupClose = document.getElementById("refreshPopupClose");
     const projectLinksContainer = document.getElementById("projectLinksContainer");
     const projectSearch = document.getElementById("projectSearch");
     const noProjectResults = document.getElementById("noProjectResults");
@@ -826,6 +944,10 @@
     let currentRouteHash = "";
     let suppressHashChange = false;
     let lastFocusedElementBeforeModal = null;
+    let navPopupDismissedRouteKey = null;
+    let iframeRegistry = {};
+    let preloadStarted = false;
+    let fadeCleanupTimer = null;
 
     let loadingShowTimer = null;
     let loadingHideTimer = null;
@@ -836,6 +958,31 @@
     const LOADER_HIDE_AFTER_IFRAME_LOAD_MS = 650;
     const LOADER_FADE_MS = 320;
     const LOADER_MIN_VISIBLE_MS = 900;
+    const PRELOAD_START_DELAY_MS = 900;
+    const PRELOAD_STAGGER_MS = 250;
+    const IFRAME_FADE_MS = 340;
+    const AUTH_REFRESH_FLAG = "smartsheetPortalAuthRefreshPending";
+    const AUTH_REFRESH_DONE_FLAG = "smartsheetPortalAuthRefreshDone";
+
+    function handleAuthReturnRefresh() {
+      const authRefreshPending = sessionStorage.getItem(AUTH_REFRESH_FLAG) === "true";
+      const authRefreshDone = sessionStorage.getItem(AUTH_REFRESH_DONE_FLAG) === "true";
+
+      if (authRefreshPending && !authRefreshDone) {
+        sessionStorage.setItem(AUTH_REFRESH_DONE_FLAG, "true");
+        sessionStorage.removeItem(AUTH_REFRESH_FLAG);
+        window.location.reload();
+        return;
+      }
+
+      sessionStorage.removeItem(AUTH_REFRESH_DONE_FLAG);
+    }
+
+    handleAuthReturnRefresh();
+
+    function markAuthRefreshPending() {
+      sessionStorage.setItem(AUTH_REFRESH_FLAG, "true");
+    }
 
     function isPlaceholderLink(link) {
       if (!link) {
@@ -887,632 +1034,113 @@
       };
     }
 
-    function parseHashRoute() {
-      let hashValue = window.location.hash || "";
-
-      if (!hashValue) {
-        return defaultRoute();
-      }
-
-      hashValue = decodeURIComponent(hashValue.replace(/^#/, ""));
-
-      if (!hashValue) {
-        return defaultRoute();
-      }
-
-      if (PORTAL_CONFIG.views[hashValue]) {
-        return {
-          type: "view",
-          id: hashValue
-        };
-      }
-
-      if (hashValue.startsWith("view-")) {
-        const viewId = hashValue.replace(/^view-/, "");
-
-        if (PORTAL_CONFIG.views[viewId]) {
-          return {
-            type: "view",
-            id: viewId
-          };
-        }
-      }
-
-      if (hashValue.startsWith("project-")) {
-        const projectId = hashValue.replace(/^project-/, "");
-
-        if (getProjectById(projectId)) {
-          return {
-            type: "project",
-            id: projectId
-          };
-        }
-      }
-
-      if (getProjectById(hashValue)) {
-        return {
-          type: "project",
-          id: hashValue
-        };
-      }
-
-      return null;
-    }
-
-    function updateRouteHash(route) {
-      const newHash = routeHash(route);
-      currentRouteHash = newHash;
-
-      if (window.location.hash !== newHash) {
-        suppressHashChange = true;
-        window.location.hash = newHash;
-
-        setTimeout(function() {
-          suppressHashChange = false;
-        }, 100);
-      }
-    }
-
-    function showLoadingMessage() {
-      clearTimeout(loadingShowTimer);
-      clearTimeout(loadingHideTimer);
-      clearTimeout(loadingFadeTimer);
-
-      placeholderMessage.classList.add("hidden");
-
-      loadingMessage.classList.add("hidden");
-      loadingMessage.classList.remove("visible");
-      loadingMessage.classList.remove("fading");
-      loadingVisibleAt = 0;
-
-      loadingShowTimer = setTimeout(function() {
-        loadingMessage.classList.remove("hidden");
-
-        requestAnimationFrame(function() {
-          loadingVisibleAt = Date.now();
-          loadingMessage.classList.add("visible");
-          loadingMessage.classList.remove("fading");
-        });
-      }, LOADER_SHOW_DELAY_MS);
-    }
-
-    function hideLoadingMessage() {
-      clearTimeout(loadingShowTimer);
-      clearTimeout(loadingHideTimer);
-      clearTimeout(loadingFadeTimer);
-
-      if (loadingMessage.classList.contains("hidden")) {
-        return;
-      }
-
-      const visibleFor = loadingVisibleAt ? Date.now() - loadingVisibleAt : 0;
-      const remainingVisibleTime = Math.max(LOADER_MIN_VISIBLE_MS - visibleFor, 0);
-
-      loadingFadeTimer = setTimeout(function() {
-        loadingMessage.classList.remove("visible");
-        loadingMessage.classList.add("fading");
-
-        loadingFadeTimer = setTimeout(function() {
-          loadingMessage.classList.add("hidden");
-          loadingMessage.classList.remove("fading");
-          loadingVisibleAt = 0;
-        }, LOADER_FADE_MS);
-      }, remainingVisibleTime);
-    }
-
-    function scheduleLoadingMessageHide() {
-      clearTimeout(loadingHideTimer);
-
-      loadingHideTimer = setTimeout(function() {
-        hideLoadingMessage();
-      }, LOADER_HIDE_AFTER_IFRAME_LOAD_MS);
-    }
-
-    function showPlaceholderMessage() {
-      hideLoadingMessage();
-      placeholderMessage.classList.remove("hidden");
-    }
-
-    function hidePlaceholderMessage() {
-      placeholderMessage.classList.add("hidden");
-    }
-
-    placeholderMessage.addEventListener("click", function(event) {
-      if (event.target === placeholderMessage) {
-        hidePlaceholderMessage();
-      }
-    });
-
-    function setViewOnlyNote(shouldShow) {
-      if (shouldShow) {
-        viewOnlyNote.classList.remove("hidden");
-      } else {
-        viewOnlyNote.classList.add("hidden");
-      }
-    }
-
-    function setActiveLink(activeLink, isProject) {
-      document.querySelectorAll(".portal-view-link, .project-view-link").forEach(function(link) {
-        link.classList.remove("active");
-      });
-
-      if (activeLink) {
-        activeLink.classList.add("active");
-      }
-
-      if (isProject) {
-        projectDropdownToggle.classList.add("active");
-      } else {
-        projectDropdownToggle.classList.remove("active");
-      }
-    }
-
-    function updateWarningToggleButton(isCollapsed) {
-      if (isCollapsed) {
-        warningToggle.textContent = "▼";
-        warningToggle.setAttribute("aria-expanded", "false");
-        warningToggle.setAttribute("aria-label", "Expand warning bar");
-      } else {
-        warningToggle.textContent = "▲";
-        warningToggle.setAttribute("aria-expanded", "true");
-        warningToggle.setAttribute("aria-label", "Collapse warning bar");
-      }
-    }
-
-    function showWarningBar() {
-      projectModeActive = true;
-      warningBar.classList.remove("hidden");
-
-      if (projectWarningCollapsedByUser) {
-        warningBar.classList.add("collapsed");
-        updateWarningToggleButton(true);
-      } else {
-        warningBar.classList.remove("collapsed");
-        updateWarningToggleButton(false);
-      }
-    }
-
-    function hideWarningBar() {
-      projectModeActive = false;
-      warningBar.classList.add("hidden");
-      warningBar.classList.remove("collapsed");
-      updateWarningToggleButton(false);
-    }
-
-    function toggleWarningBar() {
-      const isCollapsed = warningBar.classList.toggle("collapsed");
-      projectWarningCollapsedByUser = isCollapsed;
-      updateWarningToggleButton(isCollapsed);
-    }
-
-    function loadEmbeddedLink(options) {
-      const newEmbedLink = options.embedSrc;
-      const shouldShowProjectWarning = options.isProject;
-      const clickedLink = options.clickedLink;
-      const viewKey = options.viewKey;
-      const shouldShowViewOnlyNote = options.viewOnlyNote;
-
-      if (isPlaceholderLink(newEmbedLink)) {
-        showPlaceholderMessage();
-        return false;
-      }
-
-      hidePlaceholderMessage();
-      showLoadingMessage();
-
-      contentFrame.src = newEmbedLink;
-      currentViewKey = viewKey;
-
-      if (shouldShowProjectWarning) {
-        showWarningBar();
-        setViewOnlyNote(false);
-      } else {
-        hideWarningBar();
-        setViewOnlyNote(shouldShowViewOnlyNote);
-      }
-
-      setActiveLink(clickedLink, shouldShowProjectWarning);
-      return true;
-    }
-
-    function getFocusableModalElements() {
-      return Array.from(
-        saveModal.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        )
-      ).filter(function(element) {
-        return !element.disabled && element.offsetParent !== null;
-      });
-    }
-
-    function showSaveModal(actionToRunAfterYes) {
-      pendingNavigationAction = actionToRunAfterYes;
-      lastFocusedElementBeforeModal = document.activeElement;
-
-      saveModal.classList.remove("hidden");
-      saveNoButton.focus();
-    }
-
-    function closeSaveModal() {
-      saveModal.classList.add("hidden");
-      pendingNavigationAction = null;
-
-      if (lastFocusedElementBeforeModal && typeof lastFocusedElementBeforeModal.focus === "function") {
-        lastFocusedElementBeforeModal.focus();
-      }
-
-      lastFocusedElementBeforeModal = null;
-    }
-
-    function runWithSaveCheck(actionToRunAfterYes) {
-      if (projectModeActive) {
-        showSaveModal(actionToRunAfterYes);
-      } else {
-        actionToRunAfterYes();
-      }
-    }
-
-    function getProjectById(projectId) {
-      return PORTAL_CONFIG.projects.find(function(project) {
-        return project.id === projectId;
-      });
-    }
-
-    function getLinkForRoute(route) {
+    function getEmbedDataForRoute(route) {
       if (!route) {
         return null;
       }
 
       if (route.type === "project") {
-        return document.querySelector('.project-view-link[data-project-id="' + route.id + '"]');
-      }
-
-      return document.querySelector('.portal-view-link[data-view-id="' + route.id + '"]');
-    }
-
-    function loadRoute(route, shouldUpdateHash) {
-      if (!route) {
-        showPlaceholderMessage();
-        return false;
-      }
-
-      let success = false;
-
-      if (route.type === "project") {
         const project = getProjectById(route.id);
-        const clickedLink = getLinkForRoute(route);
 
         if (!project) {
-          showPlaceholderMessage();
-          return false;
+          return null;
         }
 
-        success = loadEmbeddedLink({
+        return {
+          label: project.label,
           embedSrc: project.embedSrc,
           isProject: true,
-          clickedLink: clickedLink,
-          viewKey: routeKey(route),
-          viewOnlyNote: false
-        });
-      } else {
-        const view = PORTAL_CONFIG.views[route.id];
-        const clickedLink = getLinkForRoute(route);
-
-        if (!view) {
-          showPlaceholderMessage();
-          return false;
-        }
-
-        success = loadEmbeddedLink({
-          embedSrc: view.embedSrc,
-          isProject: false,
-          clickedLink: clickedLink,
-          viewKey: routeKey(route),
-          viewOnlyNote: view.viewOnlyNote
-        });
+          viewOnlyNote: false,
+          refreshReminder: false
+        };
       }
 
-      if (success && shouldUpdateHash) {
-        updateRouteHash(route);
+      const view = PORTAL_CONFIG.views[route.id];
+
+      if (!view) {
+        return null;
       }
 
-      if (success && !shouldUpdateHash) {
-        currentRouteHash = window.location.hash || routeHash(route);
-      }
-
-      return success;
-    }
-
-    function handlePortalViewClick(clickedLink) {
-      const viewId = clickedLink.getAttribute("data-view-id");
-      const route = {
-        type: "view",
-        id: viewId
+      return {
+        label: view.label,
+        embedSrc: view.embedSrc,
+        isProject: false,
+        viewOnlyNote: view.viewOnlyNote,
+        refreshReminder: view.refreshReminder
       };
-
-      if (!PORTAL_CONFIG.views[viewId]) {
-        showPlaceholderMessage();
-        return;
-      }
-
-      if (currentViewKey === routeKey(route)) {
-        updateRouteHash(route);
-        return;
-      }
-
-      runWithSaveCheck(function() {
-        loadRoute(route, true);
-      });
     }
 
-    function handleProjectViewClick(clickedLink) {
-      const projectId = clickedLink.getAttribute("data-project-id");
-      const route = {
-        type: "project",
-        id: projectId
-      };
+    function getAllEmbeddableRoutes() {
+      const routes = [];
 
-      if (!getProjectById(projectId)) {
-        showPlaceholderMessage();
-        return;
-      }
-
-      if (currentViewKey === routeKey(route)) {
-        updateRouteHash(route);
-        return;
-      }
-
-      runWithSaveCheck(function() {
-        loadRoute(route, true);
-      });
-    }
-
-    function renderProjectLinks() {
-      projectLinksContainer.innerHTML = "";
-
-      PORTAL_CONFIG.projects.forEach(function(project) {
-        const projectLink = document.createElement("a");
-
-        projectLink.className = "project-view-link";
-        projectLink.href = routeHash({
-          type: "project",
-          id: project.id
-        });
-        projectLink.setAttribute("data-project-id", project.id);
-        projectLink.textContent = project.label;
-
-        projectLinksContainer.appendChild(projectLink);
-      });
-    }
-
-    function filterProjectLinks() {
-      const searchTerm = projectSearch.value.trim().toLowerCase();
-      const projectLinks = Array.from(projectLinksContainer.querySelectorAll(".project-view-link"));
-
-      let visibleCount = 0;
-
-      projectLinks.forEach(function(link) {
-        const projectName = link.textContent.toLowerCase();
-        const shouldShow = projectName.includes(searchTerm);
-
-        link.style.display = shouldShow ? "block" : "none";
-
-        if (shouldShow) {
-          visibleCount += 1;
-        }
-      });
-
-      noProjectResults.style.display = visibleCount === 0 ? "block" : "none";
-    }
-
-    function applyConfigToNavigation() {
-      if (PORTAL_CONFIG.portalTitle && PORTAL_CONFIG.portalTitle.trim() !== "") {
-        document.title = PORTAL_CONFIG.portalTitle;
-      }
-
-      projectDropdownLabel.textContent = PORTAL_CONFIG.departmentName + " Projects";
-
-      document.querySelectorAll(".portal-view-link").forEach(function(link) {
-        const viewId = link.getAttribute("data-view-id");
-        const view = PORTAL_CONFIG.views[viewId];
-
-        if (!view) {
-          return;
-        }
-
-        if (viewId !== "home") {
-          link.textContent = replaceDepartmentName(view.label);
-        }
-
-        link.setAttribute("aria-label", replaceDepartmentName(view.label));
-        link.href = routeHash({
+      Object.keys(PORTAL_CONFIG.views).forEach(function(viewId) {
+        routes.push({
           type: "view",
           id: viewId
         });
       });
-    }
 
-    function loadInitialRoute() {
-      const route = parseHashRoute();
-
-      if (!route) {
-        showPlaceholderMessage();
-        return;
-      }
-
-      loadRoute(route, false);
-      currentRouteHash = window.location.hash || routeHash(route);
-    }
-
-    function handleHashChange() {
-      if (suppressHashChange) {
-        currentRouteHash = window.location.hash || currentRouteHash;
-        return;
-      }
-
-      const route = parseHashRoute();
-
-      if (!route) {
-        showPlaceholderMessage();
-        return;
-      }
-
-      const requestedHash = routeHash(route);
-
-      if (currentViewKey === routeKey(route)) {
-        currentRouteHash = requestedHash;
-        return;
-      }
-
-      if (projectModeActive) {
-        const hashToRestore = currentRouteHash || routeHash(defaultRoute());
-
-        suppressHashChange = true;
-        window.location.hash = hashToRestore;
-
-        setTimeout(function() {
-          suppressHashChange = false;
-        }, 100);
-
-        showSaveModal(function() {
-          loadRoute(route, true);
+      PORTAL_CONFIG.projects.forEach(function(project) {
+        routes.push({
+          type: "project",
+          id: project.id
         });
+      });
 
-        return;
-      }
-
-      loadRoute(route, false);
-      currentRouteHash = requestedHash;
+      return routes;
     }
 
-    contentFrame.addEventListener("load", function() {
-      scheduleLoadingMessageHide();
-    });
+    function getOrCreateIframeForRoute(route) {
+      const key = routeKey(route);
+      const embedData = getEmbedDataForRoute(route);
 
-    saveNoButton.addEventListener("click", function() {
-      closeSaveModal();
-    });
-
-    saveYesButton.addEventListener("click", function() {
-      const actionToRun = pendingNavigationAction;
-      closeSaveModal();
-
-      if (typeof actionToRun === "function") {
-        actionToRun();
-      }
-    });
-
-    saveModal.addEventListener("click", function(event) {
-      if (event.target === saveModal) {
-        event.preventDefault();
-      }
-    });
-
-    document.addEventListener("keydown", function(event) {
-      const modalIsOpen = !saveModal.classList.contains("hidden");
-
-      if (!modalIsOpen) {
-        return;
+      if (!embedData || isPlaceholderLink(embedData.embedSrc)) {
+        return null;
       }
 
-      if (event.key === "Escape") {
-        event.preventDefault();
-        closeSaveModal();
-        return;
+      if (iframeRegistry[key]) {
+        return iframeRegistry[key];
       }
 
-      if (event.key === "Tab") {
-        const focusableElements = getFocusableModalElements();
+      const frame = document.createElement("iframe");
+      const frameTitle = replaceDepartmentName(embedData.label || "Smartsheet view");
 
-        if (focusableElements.length === 0) {
-          event.preventDefault();
-          return;
+      frame.className = "content-frame";
+      frame.setAttribute("data-route-key", key);
+      frame.setAttribute("title", frameTitle);
+      frame.setAttribute("allowfullscreen", "");
+      frame.src = embedData.embedSrc;
+
+      const iframeRecord = {
+        frame: frame,
+        isLoaded: false
+      };
+
+      iframeRegistry[key] = iframeRecord;
+
+      frame.addEventListener("load", function() {
+        iframeRecord.isLoaded = true;
+
+        if (currentViewKey === key) {
+          scheduleLoadingMessageHide();
         }
+      });
 
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
+      iframePool.appendChild(frame);
 
-        if (event.shiftKey && document.activeElement === firstElement) {
-          event.preventDefault();
-          lastElement.focus();
-        } else if (!event.shiftKey && document.activeElement === lastElement) {
-          event.preventDefault();
-          firstElement.focus();
-        }
-      }
-    });
+      return iframeRecord;
+    }
 
-    projectSearch.addEventListener("input", filterProjectLinks);
-    window.addEventListener("hashchange", handleHashChange);
+    function activateIframeForRoute(route) {
+      const key = routeKey(route);
+      const iframeRecord = getOrCreateIframeForRoute(route);
 
-    document.addEventListener("click", function(event) {
-      const clickedLink = event.target.closest("a");
-
-      if (!clickedLink) {
-        return;
+      if (!iframeRecord) {
+        return null;
       }
 
-      const isPortalViewLink = clickedLink.classList.contains("portal-view-link");
-      const isProjectViewLink = clickedLink.classList.contains("project-view-link");
-      const isPlaceholderActionLink = clickedLink.classList.contains("placeholder-action-link");
-      const href = clickedLink.getAttribute("href");
+      clearTimeout(fadeCleanupTimer);
 
-      if (isPlaceholderActionLink) {
-        return;
-      }
-
-      if (isPortalViewLink) {
-        event.preventDefault();
-        handlePortalViewClick(clickedLink);
-        return;
-      }
-
-      if (isProjectViewLink) {
-        event.preventDefault();
-        handleProjectViewClick(clickedLink);
-        return;
-      }
-
-      if (projectModeActive && href && href !== "#" && !href.startsWith("javascript:")) {
-        event.preventDefault();
-
-        const target = clickedLink.getAttribute("target");
-
-        runWithSaveCheck(function() {
-          if (isPlaceholderLink(href)) {
-            showPlaceholderMessage();
-            return;
-          }
-
-          if (target === "_blank") {
-            window.open(href, "_blank", "noopener,noreferrer");
-          } else {
-            projectModeActive = false;
-            window.location.href = href;
-          }
-        });
-
-        return;
-      }
-
-      if (isPlaceholderLink(href)) {
-        event.preventDefault();
-        showPlaceholderMessage();
-        return;
-      }
-    });
-
-    window.addEventListener("beforeunload", function(e) {
-      if (projectModeActive) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    });
-
-    applyConfigToNavigation();
-    renderProjectLinks();
-    loadInitialRoute();
-  </script>
-
-</body>
-</html>
+      Object.keys(iframeRegistry).forEach(function(registryKey) {
+        const frame = iframeRegistry[registryKey].frame;
+        const shouldAct
