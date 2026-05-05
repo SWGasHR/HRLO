@@ -560,14 +560,16 @@
       font-style: italic;
     }
 
+    /* --- ARCHIVE DROPDOWN INSIDE PROJECTS --- */
+    .archive-divider {
+      margin-top: 8px;
+    }
 
-
-    /* --- COLLAPSIBLE PROJECT GROUPS --- */
-    .project-group-toggle,
-    .project-subgroup-toggle {
+    .archive-toggle {
       width: 100%;
       border: none;
-      background: white;
+      background: #f7f7f7;
+      color: #666;
       cursor: pointer;
       font-family: inherit;
       text-align: left;
@@ -575,76 +577,51 @@
       align-items: center;
       justify-content: space-between;
       box-sizing: border-box;
-    }
-
-    .project-group-toggle {
-      padding: 12px 16px 8px 16px;
-      font-size: 14.5px;
-      font-weight: 700;
-      color: #252763;
-      text-transform: none;
-      letter-spacing: 0.1px;
-      border-top: 1px solid #e9e9e9;
-    }
-
-    .project-group-toggle:hover,
-    .project-group-toggle:focus {
-      background: #f3f4f6;
-      color: #252763;
-      outline: none;
-    }
-
-    .project-subgroup-toggle {
-      padding: 10px 16px 10px 22px;
+      padding: 10px 16px;
       font-size: 14px;
-      font-weight: 700;
-      color: #333;
-      background: white;
+      font-weight: 600;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
-    .project-subgroup-toggle:hover,
-    .project-subgroup-toggle:focus {
-      background: #f3f4f6;
-      color: #252763;
-      outline: none;
-    }
-
-    .project-subgroup-toggle[data-project-section-label="All Projects"] {
-      font-weight: 700;
-      color: #666;
-      background: #f7f7f7;
-    }
-
-    .project-subgroup-toggle[data-project-section-label="All Projects"]:hover,
-    .project-subgroup-toggle[data-project-section-label="All Projects"]:focus {
+    .archive-toggle:hover,
+    .archive-toggle:focus {
       background: #e8e9fb;
       color: #252763;
       outline: none;
     }
 
-    .project-group-content,
-    .project-subgroup-content {
-      display: none;
-    }
-
-    .project-group-content.open,
-    .project-subgroup-content.open {
-      display: block;
-    }
-
-    .project-caret {
+    .archive-caret {
       font-size: 11px;
       line-height: 1;
       margin-left: 10px;
       color: inherit;
     }
 
-    .project-subgroup-content .project-view-link {
-      padding-left: 38px;
+    .archive-content {
+      display: none;
     }
 
-    .project-group-content > .project-view-link {
-      padding-left: 24px;
+    .archive-content.open {
+      display: block;
+    }
+
+    .archive-content .project-view-link {
+      padding-left: 32px;
+      color: #555;
+    }
+
+    .archive-content .project-view-link:hover {
+      color: #252763;
+    }
+
+
+    .archive-empty-message {
+      padding: 10px 16px 10px 32px;
+      color: #777;
+      font-size: 14px;
+      font-style: italic;
+      cursor: default;
+      user-select: none;
     }
 
     /* --- RED WARNING BAR --- */
@@ -760,6 +737,8 @@
       font-weight: 700;
     }
 
+
+
     /* --- IFRAME AREA --- */
     .iframe-wrap {
       position: relative;
@@ -781,23 +760,25 @@
       height: 100%;
       border: none;
       display: block;
+      visibility: hidden;
       opacity: 0;
       pointer-events: none;
       z-index: 0;
       background: white;
-      transition: opacity 0.34s ease;
+      will-change: opacity;
+      transition:
+        opacity 0.34s ease-in-out,
+        visibility 0s linear 0.34s;
     }
 
     .content-frame.active {
+      visibility: visible;
       opacity: 1;
       pointer-events: auto;
-      z-index: 2;
-    }
-
-    .content-frame.fading-out {
-      opacity: 0;
-      pointer-events: none;
       z-index: 1;
+      transition:
+        opacity 0.34s ease-in-out,
+        visibility 0s linear 0s;
     }
 
     /* --- SMARTER LOADING MESSAGE --- */
@@ -997,19 +978,6 @@
     .save-modal-button.yes:hover {
       background: #1d1f50;
     }
-
-    @media (max-width: 980px) {
-      .dashboard-refresh-popup {
-        min-height: 30px;
-        padding: 7px 30px 7px 14px;
-        font-size: 11.5px;
-      }
-
-      .nav-spacer {
-        min-width: 190px;
-        padding: 0 8px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -1176,12 +1144,12 @@
     </div>
 
     <a class="swgas-logo-link"
-       id="departmentSharePointLink"
-       href="https://swgas.sharepoint.com/sites/TalentDevelopment/SitePages/Enterprise-Learning-Office.aspx"
+       id="departmentLogoLink"
+       href="INSERT_DEPARTMENT_SHAREPOINT_SITE_URL_HERE"
        target="_blank"
        rel="noopener noreferrer"
-       title="Southwest Gas SharePoint">
-      <img id="departmentLogo" src="swgas.png" alt="Southwest Gas" class="swgas-logo">
+       title="HRLO SharePoint">
+      <img id="departmentLogo" src="swgas.png" alt="HRLO Department Logo" class="swgas-logo">
     </a>
   </div>
 
@@ -1209,6 +1177,7 @@
     To make updates, open the specific project sheet from the Projects menu.
   </div>
 
+
   <div class="iframe-wrap">
     <div class="iframe-pool" id="iframePool"></div>
 
@@ -1226,7 +1195,7 @@
         <h2>Link not added yet</h2>
         <p>
           Please reach out to
-          <a class="placeholder-action-link"
+          <a class="placeholder-action-link placeholder-contact-link"
              href="mailto:Benjamin.Bell@swgas.com?subject=Smartsheet%20Portal%20Link%20Issue">
             Benjamin.Bell@swgas.com
           </a>
@@ -1276,63 +1245,131 @@
 
   <script>
     /* ==========================================================
-       EDIT THIS SECTION ONLY FOR TITLES, MAIN LINKS, AND PROJECTS
+       EDIT THIS SECTION ONLY FOR DEPARTMENT DETAILS, LINKS, AND PROJECTS
        ========================================================== */
 
     const PORTAL_CONFIG = {
+      /*
+        HRLO TEMPLATE NOTES
+        1. HRLO-specific links from the original HRLO portal have been preserved.
+        2. Keep visible: false on project placeholders until that project/archive should appear in the Projects dropdown.
+        3. The All HR Personal Tasks link is shared across departments and can stay the same.
+        4. swgas.png and department.png should stay in the same GitHub repository folder as this HTML file.
+      */
+
       portalTitle: "HRLO Project Portal",
-
       departmentName: "HRLO",
-
       defaultViewId: "home",
+
+      departmentSharePointUrl: "https://swgas.sharepoint.com/sites/TalentDevelopment/SitePages/Enterprise-Learning-Office.aspx",
+      logoFileName: "swgas.png",
+      faviconFileName: "department.png",
+      contactEmail: "Benjamin.Bell@swgas.com",
+
+      projectCreationRequestUrl: "https://app.smartsheet.com/b/form/019a16dd2b3d7e2d96db9a9e8c1aedc7",
+      smartsheetSupportUrl: "https://app.smartsheet.com/b/form/019a16e297d77bd2b18acb36bc27e593",
+      jobAidMgrUrl: "INSERT_JOB_AID_MGR_LINK_HERE",
+      jobAidDirUrl: "INSERT_JOB_AID_DIR_LINK_HERE",
 
       views: {
         home: {
           label: "Home",
           embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=c3528d6905d6456fbe9afe9bd61b1d62",
           viewOnlyNote: false,
-          refreshReminder: true
+          refreshNote: true
         },
 
         mainInitiatives: {
           label: "HRLO Main Initiatives",
           embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=524de7bc7cd24102bd4fb612fee7d43b",
           viewOnlyNote: false,
-          refreshReminder: true
+          refreshNote: true
         },
 
         allDepartmentProjects: {
           label: "All HRLO Projects (View Only)",
           embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=9c8b18d079c74c5684fc5a566d863bd9",
           viewOnlyNote: true,
-          refreshReminder: false
+          refreshNote: false
         },
 
         allHrPersonalTasks: {
           label: "All HR Personal Tasks (View Only)",
           embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=411b8b11b68440d29c2d27c40b0397ed",
           viewOnlyNote: true,
-          refreshReminder: false
+          refreshNote: false
         }
       },
 
-      projectGroups: [
+      projects: [
         {
-          label: "HRLO",
-          sections: [
-            {
-              label: "BAU",
-              projects: [
-                { id: "bau", label: "BAU", embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=2e17ca053d784f4db544a995f2fafd09" }
-              ]
-            },
-            {
-              label: "All Projects",
-              projects: [
-                { id: "elo transition plan", label: "ELO Transition Plan", embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=46376cb1ff6e47bf9b7ed1e62019ecd7" }
-              ]
-            }
-          ]
+          id: "bau",
+          label: "BAU",
+          embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=2e17ca053d784f4db544a995f2fafd09",
+          visible: true
+        },
+        {
+          id: "elo-transition-plan",
+          label: "ELO Transition Plan",
+          embedSrc: "https://app.smartsheet.com/b/publish?EQBCT=46376cb1ff6e47bf9b7ed1e62019ecd7",
+          visible: true
+        },
+        {
+          id: "project-template-1",
+          label: "Project Template 1",
+          embedSrc: "INSERT_PROJECT_TEMPLATE_1_PUBLISH_LINK_HERE",
+          visible: false
+        },
+        {
+          id: "project-template-2",
+          label: "Project Template 2",
+          embedSrc: "INSERT_PROJECT_TEMPLATE_2_PUBLISH_LINK_HERE",
+          visible: false
+        },
+        {
+          id: "project-template-3",
+          label: "Project Template 3",
+          embedSrc: "INSERT_PROJECT_TEMPLATE_3_PUBLISH_LINK_HERE",
+          visible: false
+        },
+        {
+          id: "project-template-4",
+          label: "Project Template 4",
+          embedSrc: "INSERT_PROJECT_TEMPLATE_4_PUBLISH_LINK_HERE",
+          visible: false
+        }
+      ],
+
+      archiveProjects: [
+        {
+          id: "archive-project-1",
+          label: "Archive Project 1",
+          embedSrc: "INSERT_ARCHIVE_PROJECT_1_PUBLISH_LINK_HERE",
+          visible: false
+        },
+        {
+          id: "archive-project-2",
+          label: "Archive Project 2",
+          embedSrc: "INSERT_ARCHIVE_PROJECT_2_PUBLISH_LINK_HERE",
+          visible: false
+        },
+        {
+          id: "archive-project-3",
+          label: "Archive Project 3",
+          embedSrc: "INSERT_ARCHIVE_PROJECT_3_PUBLISH_LINK_HERE",
+          visible: false
+        },
+        {
+          id: "archive-project-4",
+          label: "Archive Project 4",
+          embedSrc: "INSERT_ARCHIVE_PROJECT_4_PUBLISH_LINK_HERE",
+          visible: false
+        },
+        {
+          id: "archive-project-5",
+          label: "Archive Project 5",
+          embedSrc: "INSERT_ARCHIVE_PROJECT_5_PUBLISH_LINK_HERE",
+          visible: false
         }
       ]
     };
@@ -1351,10 +1388,9 @@
     const loadingMessage = document.getElementById("loadingMessage");
     const placeholderMessage = document.getElementById("placeholderMessage");
     const viewOnlyNote = document.getElementById("viewOnlyNote");
-    const topNav = document.querySelector(".top-nav");
-    const refreshPopup = document.getElementById("refreshReminder");
-    const refreshPopupText = refreshPopup ? refreshPopup.querySelector(".nav-refresh-text") : null;
-    const refreshPopupClose = document.getElementById("refreshReminderClose");
+    const refreshReminder = document.getElementById("refreshReminder");
+    const refreshReminderText = refreshReminder ? refreshReminder.querySelector(".nav-refresh-text") : null;
+    const refreshReminderClose = document.getElementById("refreshReminderClose");
     const projectLinksContainer = document.getElementById("projectLinksContainer");
     const projectSearch = document.getElementById("projectSearch");
     const noProjectResults = document.getElementById("noProjectResults");
@@ -1365,18 +1401,19 @@
     const navScrollLeft = document.getElementById("navScrollLeft");
     const navScrollRight = document.getElementById("navScrollRight");
     const navReminderSlot = document.getElementById("navReminderSlot");
+    const topNav = document.querySelector(".top-nav");
 
     let projectModeActive = false;
     let pendingNavigationAction = null;
     let projectWarningCollapsedByUser = false;
+    let navPopupDismissedRouteKey = null;
     let currentViewKey = null;
     let currentRouteHash = "";
     let suppressHashChange = false;
     let lastFocusedElementBeforeModal = null;
-    let navPopupDismissedRouteKey = null;
     let iframeRegistry = {};
     let preloadStarted = false;
-    let fadeCleanupTimer = null;
+    let suppressUnsavedBeforeUnload = false;
 
     let loadingShowTimer = null;
     let loadingHideTimer = null;
@@ -1387,31 +1424,37 @@
     const LOADER_HIDE_AFTER_IFRAME_LOAD_MS = 650;
     const LOADER_FADE_MS = 320;
     const LOADER_MIN_VISIBLE_MS = 900;
+
+    /*
+      These settings preload the remaining Smartsheet embeds shortly after
+      the first view opens. The small stagger prevents the browser from trying
+      to load every Smartsheet page at the exact same second.
+    */
     const PRELOAD_START_DELAY_MS = 900;
     const PRELOAD_STAGGER_MS = 250;
-    const IFRAME_FADE_MS = 340;
-    const AUTH_REFRESH_FLAG = "smartsheetPortalAuthRefreshPending";
-    const AUTH_REFRESH_DONE_FLAG = "smartsheetPortalAuthRefreshDone";
 
-    function handleAuthReturnRefresh() {
-      const authRefreshPending = sessionStorage.getItem(AUTH_REFRESH_FLAG) === "true";
-      const authRefreshDone = sessionStorage.getItem(AUTH_REFRESH_DONE_FLAG) === "true";
+    /*
+      If a user is signed out of Smartsheet, the embedded view may send them
+      to a separate sign-in tab. When they return, the already-preloaded
+      iframes can still show the old sign-in screen. This refreshes the portal
+      one time after a likely Smartsheet sign-in return so every iframe reloads
+      with the new signed-in session.
+    */
+    function getPortalStorageKeyPrefix() {
+      const sourceName = PORTAL_CONFIG.departmentName || "department";
+      const safeName = sourceName.toLowerCase().replace(/[^a-z0-9]+/g, "");
 
-      if (authRefreshPending && !authRefreshDone) {
-        sessionStorage.setItem(AUTH_REFRESH_DONE_FLAG, "true");
-        sessionStorage.removeItem(AUTH_REFRESH_FLAG);
-        window.location.reload();
-        return;
-      }
-
-      sessionStorage.removeItem(AUTH_REFRESH_DONE_FLAG);
+      return (safeName || "department") + "Portal";
     }
 
-    handleAuthReturnRefresh();
+    const AUTH_RETURN_REFRESH_DONE_KEY = getPortalStorageKeyPrefix() + "SmartsheetAuthRefreshDone";
+    const AUTH_RETURN_PENDING_KEY = getPortalStorageKeyPrefix() + "PossibleSmartsheetAuthReturn";
+    const AUTH_RETURN_MIN_AWAY_MS = 5000;
+    const AUTH_RETURN_MAX_AWAY_MS = 20 * 60 * 1000;
+    const IFRAME_INTERACTION_WINDOW_MS = 45000;
 
-    function markAuthRefreshPending() {
-      sessionStorage.setItem(AUTH_REFRESH_FLAG, "true");
-    }
+    let lastIframeInteractionAt = 0;
+    let authReturnRefreshTimer = null;
 
     function isPlaceholderLink(link) {
       if (!link) {
@@ -1480,7 +1523,7 @@
           embedSrc: project.embedSrc,
           isProject: true,
           viewOnlyNote: false,
-          refreshReminder: false
+          refreshNote: false
         };
       }
 
@@ -1495,8 +1538,16 @@
         embedSrc: view.embedSrc,
         isProject: false,
         viewOnlyNote: view.viewOnlyNote,
-        refreshReminder: view.refreshReminder
+        refreshNote: view.refreshNote
       };
+    }
+
+    function isConfigItemVisible(item) {
+      return item && item.visible !== false;
+    }
+
+    function getVisibleProjectList(projectList) {
+      return (projectList || []).filter(isConfigItemVisible);
     }
 
     function getAllEmbeddableRoutes() {
@@ -1509,7 +1560,7 @@
         });
       });
 
-      getAllProjects().forEach(function(project) {
+      getVisibleProjectList(PORTAL_CONFIG.projects).forEach(function(project) {
         routes.push({
           type: "project",
           id: project.id
@@ -1568,31 +1619,9 @@
         return null;
       }
 
-      clearTimeout(fadeCleanupTimer);
-
       Object.keys(iframeRegistry).forEach(function(registryKey) {
-        const frame = iframeRegistry[registryKey].frame;
-        const shouldActivate = registryKey === key;
-
-        if (shouldActivate) {
-          frame.classList.remove("fading-out");
-          frame.classList.add("active");
-        } else if (frame.classList.contains("active")) {
-          frame.classList.remove("active");
-          frame.classList.add("fading-out");
-        } else {
-          frame.classList.remove("active");
-          frame.classList.remove("fading-out");
-        }
+        iframeRegistry[registryKey].frame.classList.toggle("active", registryKey === key);
       });
-
-      fadeCleanupTimer = setTimeout(function() {
-        Object.keys(iframeRegistry).forEach(function(registryKey) {
-          if (registryKey !== key) {
-            iframeRegistry[registryKey].frame.classList.remove("fading-out");
-          }
-        });
-      }, IFRAME_FADE_MS + 50);
 
       return iframeRecord;
     }
@@ -1605,23 +1634,7 @@
       preloadStarted = true;
 
       const activeKey = activeRoute ? routeKey(activeRoute) : "";
-      const routesToPreload = [];
-
-      Object.keys(PORTAL_CONFIG.views).forEach(function(viewId) {
-        routesToPreload.push({
-          type: "view",
-          id: viewId
-        });
-      });
-
-      getPreloadableProjects().forEach(function(project) {
-        routesToPreload.push({
-          type: "project",
-          id: project.id
-        });
-      });
-
-      const filteredRoutesToPreload = routesToPreload.filter(function(route) {
+      const routesToPreload = getAllEmbeddableRoutes().filter(function(route) {
         const embedData = getEmbedDataForRoute(route);
 
         return (
@@ -1634,17 +1647,72 @@
       let routeIndex = 0;
 
       function preloadNextRoute() {
-        if (routeIndex >= filteredRoutesToPreload.length) {
+        if (routeIndex >= routesToPreload.length) {
           return;
         }
 
-        getOrCreateIframeForRoute(filteredRoutesToPreload[routeIndex]);
+        getOrCreateIframeForRoute(routesToPreload[routeIndex]);
         routeIndex += 1;
 
         setTimeout(preloadNextRoute, PRELOAD_STAGGER_MS);
       }
 
       setTimeout(preloadNextRoute, PRELOAD_START_DELAY_MS);
+    }
+
+    function notePossibleIframeInteraction() {
+      lastIframeInteractionAt = Date.now();
+    }
+
+    function markPossibleSmartsheetAuthReturn() {
+      if (sessionStorage.getItem(AUTH_RETURN_REFRESH_DONE_KEY) === "true") {
+        return;
+      }
+
+      const clickedIframeRecently = Date.now() - lastIframeInteractionAt <= IFRAME_INTERACTION_WINDOW_MS;
+
+      if (!clickedIframeRecently) {
+        return;
+      }
+
+      sessionStorage.setItem(AUTH_RETURN_PENDING_KEY, String(Date.now()));
+    }
+
+    function refreshOnceAfterSmartsheetAuthReturn() {
+      if (sessionStorage.getItem(AUTH_RETURN_REFRESH_DONE_KEY) === "true") {
+        return;
+      }
+
+      const pendingAt = Number(sessionStorage.getItem(AUTH_RETURN_PENDING_KEY) || 0);
+
+      if (!pendingAt) {
+        return;
+      }
+
+      const timeAway = Date.now() - pendingAt;
+
+      if (timeAway > AUTH_RETURN_MAX_AWAY_MS) {
+        sessionStorage.removeItem(AUTH_RETURN_PENDING_KEY);
+        return;
+      }
+
+      if (timeAway < AUTH_RETURN_MIN_AWAY_MS) {
+        return;
+      }
+
+      sessionStorage.setItem(AUTH_RETURN_REFRESH_DONE_KEY, "true");
+      sessionStorage.removeItem(AUTH_RETURN_PENDING_KEY);
+
+      suppressUnsavedBeforeUnload = true;
+      window.location.reload();
+    }
+
+    function scheduleAuthReturnRefreshCheck() {
+      clearTimeout(authReturnRefreshTimer);
+
+      authReturnRefreshTimer = setTimeout(function() {
+        refreshOnceAfterSmartsheetAuthReturn();
+      }, 500);
     }
 
     function parseHashRoute() {
@@ -1736,16 +1804,6 @@
       }, LOADER_SHOW_DELAY_MS);
     }
 
-    function forceHideLoadingMessage() {
-      clearTimeout(loadingShowTimer);
-      clearTimeout(loadingHideTimer);
-      clearTimeout(loadingFadeTimer);
-      loadingMessage.classList.add("hidden");
-      loadingMessage.classList.remove("visible");
-      loadingMessage.classList.remove("fading");
-      loadingVisibleAt = 0;
-    }
-
     function hideLoadingMessage() {
       clearTimeout(loadingShowTimer);
       clearTimeout(loadingHideTimer);
@@ -1768,6 +1826,17 @@
           loadingVisibleAt = 0;
         }, LOADER_FADE_MS);
       }, remainingVisibleTime);
+    }
+
+    function hideLoadingMessageImmediately() {
+      clearTimeout(loadingShowTimer);
+      clearTimeout(loadingHideTimer);
+      clearTimeout(loadingFadeTimer);
+
+      loadingMessage.classList.add("hidden");
+      loadingMessage.classList.remove("visible");
+      loadingMessage.classList.remove("fading");
+      loadingVisibleAt = 0;
     }
 
     function scheduleLoadingMessageHide() {
@@ -1798,28 +1867,28 @@
     }
 
     function setNavPopup(shouldShow, message) {
-      if (!refreshPopup) {
+      if (!refreshReminder) {
         if (navReminderSlot) {
           navReminderSlot.classList.add("collapsed");
         }
 
         if (topNav) {
-          topNav.classList.remove("reminder-visible");
           topNav.classList.add("reminder-collapsed");
+          topNav.classList.remove("reminder-visible");
         }
 
         updateNavScrollControlsSoon();
         return;
       }
 
-      if (message && refreshPopupText) {
-        refreshPopupText.textContent = message;
-        refreshPopupText.setAttribute("title", message);
+      if (message && refreshReminderText) {
+        refreshReminderText.textContent = message;
+        refreshReminderText.setAttribute("title", message);
       }
 
       const shouldShowPopup = shouldShow && navPopupDismissedRouteKey !== currentViewKey;
 
-      refreshPopup.classList.toggle("hidden", !shouldShowPopup);
+      refreshReminder.classList.toggle("hidden", !shouldShowPopup);
 
       if (navReminderSlot) {
         navReminderSlot.classList.toggle("collapsed", !shouldShowPopup);
@@ -1833,7 +1902,7 @@
       updateNavScrollControlsSoon();
     }
 
-    function setRefreshReminder(shouldShow) {
+    function setRefreshNote(shouldShow) {
       setNavPopup(shouldShow, "This Dashboard updates every 24 hours.");
     }
 
@@ -1914,7 +1983,7 @@
       const clickedLink = options.clickedLink;
       const viewKey = options.viewKey;
       const shouldShowViewOnlyNote = options.viewOnlyNote;
-      const shouldShowRefreshReminder = options.refreshReminder;
+      const shouldShowRefreshNote = options.refreshNote;
 
       if (isPlaceholderLink(newEmbedLink)) {
         showPlaceholderMessage();
@@ -1932,7 +2001,7 @@
       }
 
       if (iframeRecord.isLoaded) {
-        forceHideLoadingMessage();
+        hideLoadingMessageImmediately();
       } else {
         showLoadingMessage();
       }
@@ -1948,7 +2017,7 @@
         if (shouldShowViewOnlyNote) {
           setViewOnlyReminder(true);
         } else {
-          setRefreshReminder(shouldShowRefreshReminder);
+          setRefreshNote(shouldShowRefreshNote);
         }
       }
 
@@ -1993,52 +2062,11 @@
       }
     }
 
-    function getAllProjectGroups() {
-      return PORTAL_CONFIG.projectGroups || [];
-    }
-
-    function getAllProjects() {
-      const projects = [];
-
-      getAllProjectGroups().forEach(function(group) {
-        (group.projects || []).forEach(function(project) {
-          projects.push(project);
-        });
-
-        (group.sections || []).forEach(function(section) {
-          (section.projects || []).forEach(function(project) {
-            projects.push(project);
-          });
-        });
-      });
-
-      return projects;
-    }
-
-    function getPreloadableProjects() {
-      const projects = [];
-
-      getAllProjectGroups().forEach(function(group) {
-        if (!group.preloadProjects) {
-          return;
-        }
-
-        (group.projects || []).forEach(function(project) {
-          projects.push(project);
-        });
-
-        (group.sections || []).forEach(function(section) {
-          (section.projects || []).forEach(function(project) {
-            projects.push(project);
-          });
-        });
-      });
-
-      return projects;
-    }
-
     function getProjectById(projectId) {
-      return getAllProjects().find(function(project) {
+      const allProjects = getVisibleProjectList(PORTAL_CONFIG.projects)
+        .concat(getVisibleProjectList(PORTAL_CONFIG.archiveProjects));
+
+      return allProjects.find(function(project) {
         return project.id === projectId;
       });
     }
@@ -2079,7 +2107,7 @@
           clickedLink: clickedLink,
           viewKey: routeKey(route),
           viewOnlyNote: false,
-          refreshReminder: false
+          refreshNote: false
         });
       } else {
         const view = PORTAL_CONFIG.views[route.id];
@@ -2097,7 +2125,7 @@
           clickedLink: clickedLink,
           viewKey: routeKey(route),
           viewOnlyNote: view.viewOnlyNote,
-          refreshReminder: view.refreshReminder
+          refreshNote: view.refreshNote
         });
       }
 
@@ -2107,10 +2135,6 @@
 
       if (success && !shouldUpdateHash) {
         currentRouteHash = window.location.hash || routeHash(route);
-      }
-
-      if (success) {
-        startPreloadingEmbeddedLinks(route);
       }
 
       return success;
@@ -2160,204 +2184,192 @@
       });
     }
 
-    function createCollapsibleButton(label, level, groupIndex, sectionIndex) {
-      const button = document.createElement("button");
-      const labelSpan = document.createElement("span");
-      const caretSpan = document.createElement("span");
+    function createProjectLink(project, isArchiveProject) {
+      const projectLink = document.createElement("a");
 
-      button.type = "button";
-      button.className = level === "group" ? "project-group-toggle" : "project-subgroup-toggle";
-      button.setAttribute("aria-expanded", "false");
+      projectLink.className = isArchiveProject ? "project-view-link archive-project-link" : "project-view-link";
+      projectLink.href = routeHash({
+        type: "project",
+        id: project.id
+      });
+      projectLink.setAttribute("data-project-id", project.id);
 
-      if (level === "group") {
-        button.setAttribute("data-project-group-toggle", String(groupIndex));
-      } else {
-        button.setAttribute("data-project-subgroup-toggle", groupIndex + ":" + sectionIndex);
-        button.setAttribute("data-project-section-label", label);
+      if (isArchiveProject) {
+        projectLink.setAttribute("data-archive-project", "true");
       }
 
-      labelSpan.textContent = label;
-      caretSpan.className = "project-caret";
-      caretSpan.textContent = "▶";
+      projectLink.textContent = project.label;
 
-      button.appendChild(labelSpan);
-      button.appendChild(caretSpan);
-
-      return button;
+      return projectLink;
     }
 
-    function setCollapsibleOpen(button, content, shouldOpen) {
+    function setArchiveSectionOpen(button, content, shouldOpen) {
       if (!button || !content) {
         return;
       }
 
       button.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
-      button.querySelector(".project-caret").textContent = shouldOpen ? "▼" : "▶";
+      button.querySelector(".archive-caret").textContent = shouldOpen ? "▼" : "▶";
       content.classList.toggle("open", shouldOpen);
     }
 
-    function toggleCollapsible(button, content) {
+    function toggleArchiveSection(button, content) {
       const shouldOpen = !content.classList.contains("open");
-      setCollapsibleOpen(button, content, shouldOpen);
+      setArchiveSectionOpen(button, content, shouldOpen);
     }
 
     function renderProjectLinks() {
       projectLinksContainer.innerHTML = "";
 
-      getAllProjectGroups().forEach(function(group, groupIndex) {
-        const groupButton = createCollapsibleButton(group.label, "group", groupIndex);
-        const groupContent = document.createElement("div");
-
-        groupContent.className = "project-group-content";
-        groupContent.setAttribute("data-project-group-content", String(groupIndex));
-
-        groupButton.addEventListener("click", function(event) {
-          event.preventDefault();
-          toggleCollapsible(groupButton, groupContent);
-        });
-
-        projectLinksContainer.appendChild(groupButton);
-        projectLinksContainer.appendChild(groupContent);
-
-        (group.projects || []).forEach(function(project) {
-          const projectLink = document.createElement("a");
-
-          projectLink.className = "project-view-link";
-          projectLink.href = routeHash({
-            type: "project",
-            id: project.id
-          });
-          projectLink.setAttribute("data-project-id", project.id);
-          projectLink.setAttribute("data-project-group", String(groupIndex));
-          projectLink.textContent = project.label;
-
-          groupContent.appendChild(projectLink);
-        });
-
-        (group.sections || []).forEach(function(section, sectionIndex) {
-          const sectionButton = createCollapsibleButton(section.label, "section", groupIndex, sectionIndex);
-          const sectionContent = document.createElement("div");
-
-          sectionContent.className = "project-subgroup-content";
-          sectionContent.setAttribute("data-project-subgroup-content", groupIndex + ":" + sectionIndex);
-
-          sectionButton.addEventListener("click", function(event) {
-            event.preventDefault();
-            toggleCollapsible(sectionButton, sectionContent);
-          });
-
-          groupContent.appendChild(sectionButton);
-          groupContent.appendChild(sectionContent);
-
-          if ((section.label || "").toLowerCase() === "all projects") {
-            setCollapsibleOpen(sectionButton, sectionContent, true);
-          }
-
-          (section.projects || []).forEach(function(project) {
-            const projectLink = document.createElement("a");
-
-            projectLink.className = "project-view-link";
-            projectLink.href = routeHash({
-              type: "project",
-              id: project.id
-            });
-            projectLink.setAttribute("data-project-id", project.id);
-            projectLink.setAttribute("data-project-group", String(groupIndex));
-            projectLink.setAttribute("data-project-subgroup", groupIndex + ":" + sectionIndex);
-            projectLink.textContent = project.label;
-
-            sectionContent.appendChild(projectLink);
-          });
-        });
+      getVisibleProjectList(PORTAL_CONFIG.projects).forEach(function(project) {
+        projectLinksContainer.appendChild(createProjectLink(project, false));
       });
+
+      const archiveProjects = getVisibleProjectList(PORTAL_CONFIG.archiveProjects);
+      const archiveDivider = document.createElement("div");
+      const archiveButton = document.createElement("button");
+      const archiveLabel = document.createElement("span");
+      const archiveCaret = document.createElement("span");
+      const archiveContent = document.createElement("div");
+
+      archiveDivider.className = "dropdown-divider archive-divider";
+
+      archiveButton.type = "button";
+      archiveButton.className = "archive-toggle";
+      archiveButton.setAttribute("aria-expanded", "false");
+      archiveButton.setAttribute("data-archive-toggle", "true");
+
+      archiveLabel.textContent = "Archive";
+      archiveCaret.className = "archive-caret";
+      archiveCaret.textContent = "▶";
+
+      archiveButton.appendChild(archiveLabel);
+      archiveButton.appendChild(archiveCaret);
+
+      archiveContent.className = "archive-content";
+      archiveContent.setAttribute("data-archive-content", "true");
+
+      archiveButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        toggleArchiveSection(archiveButton, archiveContent);
+      });
+
+      if (archiveProjects.length > 0) {
+        archiveProjects.forEach(function(project) {
+          archiveContent.appendChild(createProjectLink(project, true));
+        });
+      } else {
+        const emptyArchiveMessage = document.createElement("div");
+        emptyArchiveMessage.className = "archive-empty-message";
+        emptyArchiveMessage.textContent = "No Archived Projects Available";
+        archiveContent.appendChild(emptyArchiveMessage);
+      }
+
+      projectLinksContainer.appendChild(archiveDivider);
+      projectLinksContainer.appendChild(archiveButton);
+      projectLinksContainer.appendChild(archiveContent);
     }
 
     function filterProjectLinks() {
       const searchTerm = projectSearch.value.trim().toLowerCase();
       const projectLinks = Array.from(projectLinksContainer.querySelectorAll(".project-view-link"));
-      const groupButtons = Array.from(projectLinksContainer.querySelectorAll("[data-project-group-toggle]"));
-      const groupContents = Array.from(projectLinksContainer.querySelectorAll("[data-project-group-content]"));
-      const sectionButtons = Array.from(projectLinksContainer.querySelectorAll("[data-project-subgroup-toggle]"));
-      const sectionContents = Array.from(projectLinksContainer.querySelectorAll("[data-project-subgroup-content]"));
+      const archiveButton = projectLinksContainer.querySelector("[data-archive-toggle]");
+      const archiveContent = projectLinksContainer.querySelector("[data-archive-content]");
+      const archiveDivider = projectLinksContainer.querySelector(".archive-divider");
 
       let visibleCount = 0;
-      const visibleGroups = {};
-      const visibleSections = {};
+      let visibleArchiveCount = 0;
 
       projectLinks.forEach(function(link) {
         const projectName = link.textContent.toLowerCase();
-        const groupKey = link.getAttribute("data-project-group");
-        const sectionKey = link.getAttribute("data-project-subgroup");
-        const shouldShow = !searchTerm || projectName.includes(searchTerm);
+        const shouldShow = projectName.includes(searchTerm);
+        const isArchiveProject = link.getAttribute("data-archive-project") === "true";
 
         link.style.display = shouldShow ? "block" : "none";
 
         if (shouldShow) {
           visibleCount += 1;
-          visibleGroups[groupKey] = true;
 
-          if (sectionKey) {
-            visibleSections[sectionKey] = true;
+          if (isArchiveProject) {
+            visibleArchiveCount += 1;
           }
         }
       });
 
-      groupButtons.forEach(function(button) {
-        const groupKey = button.getAttribute("data-project-group-toggle");
-        button.style.display = visibleGroups[groupKey] ? "flex" : "none";
-      });
+      if (archiveButton && archiveContent) {
+        if (searchTerm) {
+          const shouldShowArchive = visibleArchiveCount > 0;
 
-      sectionButtons.forEach(function(button) {
-        const sectionKey = button.getAttribute("data-project-subgroup-toggle");
-        button.style.display = visibleSections[sectionKey] ? "flex" : "none";
-      });
+          archiveButton.style.display = shouldShowArchive ? "flex" : "none";
+          archiveContent.style.display = shouldShowArchive ? "block" : "none";
 
-      if (searchTerm) {
-        groupButtons.forEach(function(button) {
-          const groupKey = button.getAttribute("data-project-group-toggle");
-          const content = projectLinksContainer.querySelector('[data-project-group-content="' + groupKey + '"]');
-
-          if (visibleGroups[groupKey]) {
-            setCollapsibleOpen(button, content, true);
+          if (archiveDivider) {
+            archiveDivider.style.display = shouldShowArchive ? "block" : "none";
           }
-        });
 
-        sectionButtons.forEach(function(button) {
-          const sectionKey = button.getAttribute("data-project-subgroup-toggle");
-          const content = projectLinksContainer.querySelector('[data-project-subgroup-content="' + sectionKey + '"]');
+          setArchiveSectionOpen(archiveButton, archiveContent, shouldShowArchive);
+        } else {
+          archiveButton.style.display = "";
+          archiveContent.style.display = "";
 
-          if (visibleSections[sectionKey]) {
-            setCollapsibleOpen(button, content, true);
+          if (archiveDivider) {
+            archiveDivider.style.display = "";
           }
-        });
-      } else {
-        groupContents.forEach(function(content) {
-          const groupKey = content.getAttribute("data-project-group-content");
-          const button = projectLinksContainer.querySelector('[data-project-group-toggle="' + groupKey + '"]');
-          setCollapsibleOpen(button, content, false);
-          content.style.display = "";
-        });
 
-        sectionContents.forEach(function(content) {
-          const sectionKey = content.getAttribute("data-project-subgroup-content");
-          const button = projectLinksContainer.querySelector('[data-project-subgroup-toggle="' + sectionKey + '"]');
-          const sectionLabel = button ? button.getAttribute("data-project-section-label") : "";
-          const shouldOpenByDefault = (sectionLabel || "").toLowerCase() === "all projects";
-
-          setCollapsibleOpen(button, content, shouldOpenByDefault);
-          content.style.display = "";
-        });
+          setArchiveSectionOpen(archiveButton, archiveContent, false);
+        }
       }
 
       noProjectResults.style.display = visibleCount === 0 ? "block" : "none";
     }
 
+    function setLinkHref(elementId, url) {
+      const link = document.getElementById(elementId);
+
+      if (!link) {
+        return;
+      }
+
+      link.href = url || "#";
+    }
+
     function applyConfigToNavigation() {
-      if (PORTAL_CONFIG.portalTitle && PORTAL_CONFIG.portalTitle.trim() !== "") {
-        document.title = PORTAL_CONFIG.portalTitle;
+      const pageTitle = replaceDepartmentName(PORTAL_CONFIG.portalTitle || "(Department Name) Project Portal");
+
+      if (pageTitle.trim() !== "") {
+        document.title = pageTitle;
+      }
+
+      const favicon = document.querySelector('link[rel="icon"]');
+
+      if (favicon && PORTAL_CONFIG.faviconFileName) {
+        favicon.href = PORTAL_CONFIG.faviconFileName;
       }
 
       projectDropdownLabel.textContent = PORTAL_CONFIG.departmentName + " Projects";
+
+      const departmentLogoLink = document.getElementById("departmentLogoLink");
+      const departmentLogo = document.getElementById("departmentLogo");
+
+      if (departmentLogoLink) {
+        departmentLogoLink.href = PORTAL_CONFIG.departmentSharePointUrl || "#";
+        departmentLogoLink.title = PORTAL_CONFIG.departmentName + " SharePoint";
+      }
+
+      if (departmentLogo) {
+        departmentLogo.src = PORTAL_CONFIG.logoFileName || "swgas.png";
+        departmentLogo.alt = PORTAL_CONFIG.departmentName + " Department Logo";
+      }
+
+      setLinkHref("projectCreationRequestLink", PORTAL_CONFIG.projectCreationRequestUrl);
+      setLinkHref("smartsheetSupportLink", PORTAL_CONFIG.smartsheetSupportUrl);
+      setLinkHref("jobAidMgrLink", PORTAL_CONFIG.jobAidMgrUrl);
+      setLinkHref("jobAidDirLink", PORTAL_CONFIG.jobAidDirUrl);
+
+      document.querySelectorAll(".placeholder-contact-link").forEach(function(link) {
+        link.href = "mailto:" + PORTAL_CONFIG.contactEmail + "?subject=Smartsheet%20Portal%20Link%20Issue";
+        link.textContent = PORTAL_CONFIG.contactEmail;
+      });
 
       document.querySelectorAll(".portal-view-link").forEach(function(link) {
         const viewId = link.getAttribute("data-view-id");
@@ -2387,8 +2399,12 @@
         return;
       }
 
-      loadRoute(route, false);
+      const didLoadRoute = loadRoute(route, false);
       currentRouteHash = window.location.hash || routeHash(route);
+
+      if (didLoadRoute) {
+        startPreloadingEmbeddedLinks(route);
+      }
     }
 
     function handleHashChange() {
@@ -2451,15 +2467,6 @@
       }
     });
 
-    if (refreshPopupClose) {
-      refreshPopupClose.addEventListener("click", function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        navPopupDismissedRouteKey = currentViewKey;
-        setNavPopup(false);
-      });
-    }
-
     document.addEventListener("keydown", function(event) {
       const modalIsOpen = !saveModal.classList.contains("hidden");
 
@@ -2494,32 +2501,39 @@
       }
     });
 
-    window.addEventListener("focus", function() {
-      const authRefreshPending = sessionStorage.getItem(AUTH_REFRESH_FLAG) === "true";
-      const authRefreshDone = sessionStorage.getItem(AUTH_REFRESH_DONE_FLAG) === "true";
-
-      if (authRefreshPending && !authRefreshDone) {
-        sessionStorage.setItem(AUTH_REFRESH_DONE_FLAG, "true");
-        sessionStorage.removeItem(AUTH_REFRESH_FLAG);
-        window.location.reload();
-      }
-    });
-
-    document.addEventListener("visibilitychange", function() {
-      if (document.visibilityState === "visible") {
-        const authRefreshPending = sessionStorage.getItem(AUTH_REFRESH_FLAG) === "true";
-        const authRefreshDone = sessionStorage.getItem(AUTH_REFRESH_DONE_FLAG) === "true";
-
-        if (authRefreshPending && !authRefreshDone) {
-          sessionStorage.setItem(AUTH_REFRESH_DONE_FLAG, "true");
-          sessionStorage.removeItem(AUTH_REFRESH_FLAG);
-          window.location.reload();
-        }
-      }
-    });
+    if (refreshReminderClose) {
+      refreshReminderClose.addEventListener("click", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        navPopupDismissedRouteKey = currentViewKey;
+        setNavPopup(false);
+      });
+    }
 
     projectSearch.addEventListener("input", filterProjectLinks);
     window.addEventListener("hashchange", handleHashChange);
+
+    window.addEventListener("blur", function() {
+      const activeElement = document.activeElement;
+
+      if (activeElement && activeElement.classList && activeElement.classList.contains("content-frame")) {
+        notePossibleIframeInteraction();
+      }
+    }, true);
+
+    document.addEventListener("visibilitychange", function() {
+      if (document.visibilityState === "hidden") {
+        markPossibleSmartsheetAuthReturn();
+      } else {
+        scheduleAuthReturnRefreshCheck();
+      }
+    });
+
+    window.addEventListener("focus", function() {
+      if (!document.hidden) {
+        scheduleAuthReturnRefreshCheck();
+      }
+    });
 
     document.addEventListener("click", function(event) {
       const clickedLink = event.target.closest("a");
@@ -2535,10 +2549,6 @@
 
       if (isPlaceholderActionLink) {
         return;
-      }
-
-      if (href && href.includes("smartsheet.com")) {
-        markAuthRefreshPending();
       }
 
       if (isPortalViewLink) {
@@ -2583,13 +2593,11 @@
     });
 
     window.addEventListener("beforeunload", function(e) {
-      if (projectModeActive) {
+      if (projectModeActive && !suppressUnsavedBeforeUnload) {
         e.preventDefault();
         e.returnValue = "";
       }
     });
-
-
 
     function getNavHorizontalPadding() {
       if (!navScrollRegion) {
